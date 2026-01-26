@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 typedef struct {
   uint64_t mask;
@@ -317,70 +320,79 @@ insn_t *disassemble(const uint8_t *in_buffer) {
     const disass_insn_t* current_insn;
     const uint32_t insn_list_size = sizeof (instruction_list) / sizeof (disass_insn_t);
     for (int insn_list_index = 0; insn_list_index < insn_list_size; insn_list_index++) {
-        data = 0;
-        current_insn = &instruction_list[insn_list_index];
-        // add EP as a operand
-        for (int i = 0; i < current_insn->size; i+=2) {
-            data |= (uint64_t)in_buffer[i+1] << ((current_insn->size - (i+1)) * 8);
-            data |= (uint64_t)in_buffer[i] << ((current_insn->size - (i+2)) * 8);
-            //printf("Switching[%d] (shift: %d - shifted: 0x%lx): %x and %x: 0x%lx\n",i,((current_insn->size - i) * 8),(uint64_t)in_buffer[i+1] << ((current_insn->size - i) * 8),in_buffer[i],in_buffer[i+1],data);
-        }
-        
-        //printf("Converted to %x\n",(uint32_t)data);
-        if (((current_insn->mask & data) == data) && (current_insn->static_mask & data) == current_insn->static_mask) {// && (current_insn->mask & data) == data) {
-            ret_val->name = current_insn->name;
-            ret_val->size = current_insn->size;
-            ret_val->op_type = current_insn->op_type;
-            ret_val->cond = current_insn->cond;
-            ret_val->insn_id = current_insn->insn_id;
-            ret_val->n = current_insn->n;
-            for (int op_index = 0; op_index < 5; op_index++) {
-                if (current_insn->fields[op_index].mask == 0) continue;
-                uint16_t real_op_index = current_insn->fields[op_index].index;
-                int64_t tmp_value = data & current_insn->fields[op_index].mask;
-                if (current_insn->fields[op_index].type == TYPE_EP) {
-                    ret_val->fields[real_op_index].value = 30;
-                    ret_val->fields[real_op_index].type = TYPE_REG_MEM;
+#ifdef _WIN32
+        __try {
+#endif
+            data = 0;
+            current_insn = &instruction_list[insn_list_index];
+            // add EP as a operand
+            for (int i = 0; i < current_insn->size; i+=2) {
+                data |= (uint64_t)in_buffer[i+1] << ((current_insn->size - (i+1)) * 8);
+                data |= (uint64_t)in_buffer[i] << ((current_insn->size - (i+2)) * 8);
+                //printf("Switching[%d] (shift: %d - shifted: 0x%lx): %x and %x: 0x%lx\n",i,((current_insn->size - i) * 8),(uint64_t)in_buffer[i+1] << ((current_insn->size - i) * 8),in_buffer[i],in_buffer[i+1],data);
+            }
+            
+            //printf("Converted to %x\n",(uint32_t)data);
+            if (((current_insn->mask & data) == data) && (current_insn->static_mask & data) == current_insn->static_mask) {// && (current_insn->mask & data) == data) {
+                ret_val->name = current_insn->name;
+                ret_val->size = current_insn->size;
+                ret_val->op_type = current_insn->op_type;
+                ret_val->cond = current_insn->cond;
+                ret_val->insn_id = current_insn->insn_id;
+                ret_val->n = current_insn->n;
+                for (int op_index = 0; op_index < 5; op_index++) {
+                    if (current_insn->fields[op_index].mask == 0) continue;
+                    uint16_t real_op_index = current_insn->fields[op_index].index;
+                    int64_t tmp_value = data & current_insn->fields[op_index].mask;
+                    if (current_insn->fields[op_index].type == TYPE_EP) {
+                        ret_val->fields[real_op_index].value = 30;
+                        ret_val->fields[real_op_index].type = TYPE_REG_MEM;
+                        ret_val->fields[real_op_index].size += current_insn->fields[op_index].size;
+                        ret_val->fields[real_op_index].sign = current_insn->fields[op_index].sign;
+                        continue;
+                    }
+                    
+                    tmp_value >>= current_insn->fields[op_index].shr;
+                    tmp_value <<= current_insn->fields[op_index].shl;
+                    tmp_value += current_insn->fields[op_index].add;
+                    ret_val->fields[real_op_index].value |= tmp_value;
+                    ret_val->fields[real_op_index].type = current_insn->fields[op_index].type;
                     ret_val->fields[real_op_index].size += current_insn->fields[op_index].size;
                     ret_val->fields[real_op_index].sign = current_insn->fields[op_index].sign;
-                    continue;
+                    // Convert to little endian
+                    
+                    //printf("GOT %ld\n",ret_val->fields[real_op_index].value);
                 }
-                
-                tmp_value >>= current_insn->fields[op_index].shr;
-                tmp_value <<= current_insn->fields[op_index].shl;
-                tmp_value += current_insn->fields[op_index].add;
-                ret_val->fields[real_op_index].value |= tmp_value;
-                ret_val->fields[real_op_index].type = current_insn->fields[op_index].type;
-                ret_val->fields[real_op_index].size += current_insn->fields[op_index].size;
-                ret_val->fields[real_op_index].sign = current_insn->fields[op_index].sign;
-                // Convert to little endian
-                
-                //printf("GOT %ld\n",ret_val->fields[real_op_index].value);
+                for (int op_index = 0; op_index < 5; op_index++)
+                {
+                    if ((ret_val->fields[op_index].type == TYPE_IMM || ret_val->fields[op_index].type == TYPE_JMP || ret_val->fields[op_index].type == TYPE_MEM) && ret_val->fields[op_index].sign == SIGNED) {
+                        int64_t m = 1UL << (ret_val->fields[op_index].size - 1);
+                        //printf("extending %d with %d",ret_val->fields[op_index].value ,m);
+                        ret_val->fields[op_index].value = (ret_val->fields[op_index].value ^ m) - m;
+                    }
+                    if (ret_val->fields[op_index].type == TYPE_BINS2) {
+                        ret_val->fields[op_index].value = ret_val->fields[op_index].value - (ret_val->fields[1].value - 1);
+                        ret_val->fields[op_index].type = TYPE_IMM;
+                    } else if (ret_val->fields[op_index].type == TYPE_BINS3) {
+                        ret_val->fields[op_index].value = ret_val->fields[op_index].value - (ret_val->fields[1].value - 1);
+                        ret_val->fields[op_index].type = TYPE_IMM;
+                    } else if (ret_val->fields[op_index].type == TYPE_BINS) {
+                        ret_val->fields[op_index].value = ret_val->fields[op_index].value - (ret_val->fields[1].value - 0x10) + 1;
+                        ret_val->fields[op_index].type = TYPE_IMM;
+                    } else if (ret_val->fields[op_index].type == TYPE_SYSREG) {
+                        ret_val->fields[op_index].value += (ret_val->fields[2].value * 40) + 100;
+                    }
+                }
+                // If we got banned on zero just ignore what we did and try again
+                if (current_insn->must_not_be_zero != -1 && ret_val->fields[current_insn->must_not_be_zero].value == 0) continue;
+                return ret_val;
             }
-            for (int op_index = 0; op_index < 5; op_index++)
-            {
-                if ((ret_val->fields[op_index].type == TYPE_IMM || ret_val->fields[op_index].type == TYPE_JMP || ret_val->fields[op_index].type == TYPE_MEM) && ret_val->fields[op_index].sign == SIGNED) {
-                    int64_t m = 1UL << (ret_val->fields[op_index].size - 1);
-                    //printf("extending %d with %d",ret_val->fields[op_index].value ,m);
-                    ret_val->fields[op_index].value = (ret_val->fields[op_index].value ^ m) - m;
-                }
-                if (ret_val->fields[op_index].type == TYPE_BINS2) {
-                    ret_val->fields[op_index].value = ret_val->fields[op_index].value - (ret_val->fields[1].value - 1);
-                    ret_val->fields[op_index].type = TYPE_IMM;
-                } else if (ret_val->fields[op_index].type == TYPE_BINS3) {
-                    ret_val->fields[op_index].value = ret_val->fields[op_index].value - (ret_val->fields[1].value - 1);
-                    ret_val->fields[op_index].type = TYPE_IMM;
-                } else if (ret_val->fields[op_index].type == TYPE_BINS) {
-                    ret_val->fields[op_index].value = ret_val->fields[op_index].value - (ret_val->fields[1].value - 0x10) + 1;
-                    ret_val->fields[op_index].type = TYPE_IMM;
-                } else if (ret_val->fields[op_index].type == TYPE_SYSREG) {
-                    ret_val->fields[op_index].value += (ret_val->fields[2].value * 40) + 100;
-                }
-            }
-            // If we got banned on zero just ignore what we did and try again
-            if (current_insn->must_not_be_zero != -1 && ret_val->fields[current_insn->must_not_be_zero].value == 0) continue;
-            return ret_val;
+#ifdef _WIN32
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            // If memory is not readable (e.g., near EOF mapping), skip this pattern.
+            continue;
         }
+#endif
     }
     return NULL;
 }
