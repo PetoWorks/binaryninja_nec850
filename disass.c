@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 typedef struct {
   uint64_t mask;
@@ -317,6 +320,9 @@ insn_t *disassemble(const uint8_t *in_buffer) {
     const disass_insn_t* current_insn;
     const uint32_t insn_list_size = sizeof (instruction_list) / sizeof (disass_insn_t);
     for (int insn_list_index = 0; insn_list_index < insn_list_size; insn_list_index++) {
+#ifdef _WIN32
+        __try {
+#endif
         data = 0;
         current_insn = &instruction_list[insn_list_index];
         // add EP as a operand
@@ -381,6 +387,12 @@ insn_t *disassemble(const uint8_t *in_buffer) {
             if (current_insn->must_not_be_zero != -1 && ret_val->fields[current_insn->must_not_be_zero].value == 0) continue;
             return ret_val;
         }
+#ifdef _WIN32
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            // If memory is not readable (e.g., near EOF mapping), skip this pattern.
+            continue;
+        }
+#endif
     }
     return NULL;
 }

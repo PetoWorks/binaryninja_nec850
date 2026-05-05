@@ -15,3 +15,12 @@ The `binaryninjaapi` submodule must match the Binary Ninja build you are targeti
 5. Install it to your user plugin directory: `cmake --install build`
 
 On macOS the built plugin artifact is `build/libnec850_arch.dylib`.
+
+## Windows (MSVC) Build
+
+1. `cmake -S . -B build -G "Visual Studio 18 2026" -DBN_INSTALL_DIR="C:/Users/<you>/AppData/Local/Programs/Vector35/BinaryNinja"`
+2. `cmake --build build --config Release --parallel`
+3. Output: `build/Release/nec850_arch.dll` → copy to `%APPDATA%/Binary Ninja/plugins`
+
+### Note on binaryninjaapi version
+- Match the `binaryninjaapi` submodule to your installed Binary Ninja API revision (see `api_REVISION.txt` under the Binary Ninja install, then `git -C binaryninjaapi checkout <revision>`). This avoids BNGet* linker errors.
