@@ -21,7 +21,7 @@
 		"installers": [],
 		"other": []
 	},
-	"version": "1.0",
+	"version": "1.1",
 	"author": "Accenture (Martin Petran)",
-	"minimumbinaryninjaversion": 4333
+	"minimumbinaryninjaversion": 9072
 }
