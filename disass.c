@@ -43,6 +43,7 @@ const disass_insn_t instruction_list[] = {
     { "cvtf.sw"   , N850_CVTFSW     ,    4, 0xFFF4FC40  , 0x07F40440 , 2,   OP_TYPE_MOV, COND_NV, {{0x0000f800,  11,  0,  0, 5, UNSIGNED, 1, TYPE_REG}, {0xf8000000,  27,  0,  0, 5, UNSIGNED, 0, TYPE_REG}, {0}, {0}, {0}}, -1 },
     { "cvtf.uls"   , N850_CVTFULS     ,    4, 0xF7F1FC42  , 0x07F10442 , 2,   OP_TYPE_MOV, COND_NV, {{0x0000f800,  11,  0,  0, 5, UNSIGNED, 1, TYPE_REG}, {0xf0000000,  28,  0,  0, 4, UNSIGNED, 0, TYPE_REG}, {0}, {0}, {0}}, -1 },
     { "cvtf.uws"   , N850_CVTFUWS     ,    4, 0xFFF0FC42  , 0x07F00442 , 2,   OP_TYPE_MOV, COND_NV, {{0x0000f800,  11,  0,  0, 5, UNSIGNED, 1, TYPE_REG}, {0xf8000000,  27,  0,  0, 5, UNSIGNED, 0, TYPE_REG}, {0}, {0}, {0}}, -1 },
+    { "cvtf.uwd"   , N850_CVTFUWD     ,    4, 0xFFF0F452  , 0x07F00452 , 2,   OP_TYPE_MOV, COND_NV, {{0xf8000000,  27,  0,  0, 5, UNSIGNED, 0, TYPE_REG}, {0x0000f000,  12,  1,  0, 5, UNSIGNED, 1, TYPE_REG}, {0}, {0}, {0}}, -1 },
     { "cvtf.ws"   , N850_CVTFWS     ,    4, 0xFFE0FC42  , 0x07E00442 , 2,   OP_TYPE_MOV, COND_NV, {{0x0000f800,  11,  0,  0, 5, UNSIGNED, 1, TYPE_REG}, {0xf8000000,  27,  0,  0, 5, UNSIGNED, 0, TYPE_REG}, {0}, {0}, {0}}, -1 },
     { "loop"   , N850_LOOP    ,    4, 0x6FFFFFF  , 0x6E00001  , 2,   OP_TYPE_LOOP, COND_NZ, {{0x001f0000,  16,  0,  0, 5, UNSIGNED, 0, TYPE_REG}, {0x0000fffe,  0,  0,  0, 16, UNSIGNED, 1, TYPE_LOOP}, {0}, {0}, {0}}, 0 },
     { "rie"   , N850_RIE ,    2, 0x0040    , 0x0040       , 0,   OP_TYPE_CMP, COND_NV, {{0}, {0}, {0}, {0}, {0}}, -1 },

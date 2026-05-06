@@ -2623,6 +2623,21 @@ virtual std::string GetIntrinsicName (uint32_t intrinsic) override {
 				);
 			}
 			break;
+			case N850_CVTFUWD:
+			{
+				il.AddInstruction(
+					il.SetRegisterSplit(
+						8,
+						insn->fields[1].value + 1,
+						insn->fields[1].value,
+						il.FloatConvert(
+							8,
+							this->get_reg(il,insn->fields[0].value,4)
+						)
+					)
+				);
+			}
+			break;
 			case N850_CVTFWS:
 			{
 				il.AddInstruction(
@@ -4786,6 +4801,33 @@ virtual std::string GetIntrinsicName (uint32_t intrinsic) override {
 			break;
 			case N850_SHRI:
 			{
+				uint32_t imm5 = insn->fields[0].value & 0x1F;
+				if (imm5 == 0)
+				{
+					il.AddInstruction(
+						il.SetFlag(
+							FLAG_CY,
+							il.Const(4, 0)
+						)
+					);
+				}
+				else
+				{
+					il.AddInstruction(
+						il.SetFlag(
+							FLAG_CY,
+							il.And(
+								4,
+								il.LogicalShiftRight(
+									4,
+									this->get_reg(il,insn->fields[1].value,4),
+									il.Const(4, imm5 - 1)
+								),
+								il.Const(4, 1)
+							)
+						)
+					);
+				}
 				il.AddInstruction(
 					il.SetRegister(
 						4,
@@ -4800,7 +4842,7 @@ virtual std::string GetIntrinsicName (uint32_t intrinsic) override {
 									insn->fields[0].value
 								)
 							),
-							FLAG_WRITE_CYSZ
+							FLAG_WRITE_SZ
 						)
 					)
 				);
@@ -4810,20 +4852,6 @@ virtual std::string GetIntrinsicName (uint32_t intrinsic) override {
 						il.Const(
 							4,
 							0
-						)
-					)
-				);
-				il.AddInstruction(
-					il.SetFlag(
-						FLAG_CY,
-						il.And(
-							4,
-							this->get_reg(il,insn->fields[1].value,4),
-							il.Const(
-								4,
-								(1 << (insn->fields[0].value - 1))
-							)
-							
 						)
 					)
 				);

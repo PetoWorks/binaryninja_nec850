@@ -62,6 +62,7 @@ enum insn_id {
     N850_CVTFSW,
     N850_CVTFULS,
     N850_CVTFUWS,
+    N850_CVTFUWD,
     N850_CVTFWS,
     N850_DBRET,
     N850_DBTRAP,
