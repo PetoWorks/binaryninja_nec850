@@ -185,6 +185,7 @@ enum insn_id {
     N850_TST1R,
     N850_SUBFS,
     N850_TRFSR,
+    N850_TRNCFDUW,
     N850_TRNCFSL,
     N850_TRNCFSUL,
     N850_TRNCFSUW,

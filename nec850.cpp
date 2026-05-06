@@ -5451,6 +5451,20 @@ virtual std::string GetIntrinsicName (uint32_t intrinsic) override {
 				);
 			}
 			break;
+			case N850_TRNCFDUW:
+			{
+				il.AddInstruction(
+					il.SetRegister(
+						4,
+						insn->fields[1].value,
+						il.FloatTrunc(
+							4,
+							this->get_reg(il,insn->fields[0].value,8)
+						)
+					)
+				);
+			}
+			break;
 			case N850_TRNCFSW:
 			{
 				il.AddInstruction(
