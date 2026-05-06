@@ -51,6 +51,7 @@ enum insn_id {
     N850_CMOVI,
     N850_CMP,
     N850_CMPFS,
+    N850_CMPFD,
     N850_CMPI,
     N850_CTRET,
     N850_CVTFHS,

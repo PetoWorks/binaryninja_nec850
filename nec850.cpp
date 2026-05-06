@@ -2471,6 +2471,116 @@ virtual std::string GetIntrinsicName (uint32_t intrinsic) override {
 				}
 			}
 			break;
+			case N850_CMPFD:
+			{
+				switch (insn->fields[0].value)
+				{
+				case 0:
+				case 8:
+					il.AddInstruction(
+						il.SetRegister(
+							4,
+							NEC_SYSREG_FPSR,
+							il.Const(
+								4,
+								0
+							)
+						)
+					);
+					break;
+				case 2:
+				case 3:
+				case 10:
+				case 11:
+					condition = il.FloatCompareEqual(
+						8,
+						this->get_reg(il,insn->fields[2].value,8),
+						this->get_reg(il,insn->fields[1].value,8)
+					);
+					il.AddInstruction(il.If(condition,true_tag,false_tag));
+					il.MarkLabel(true_tag);
+					il.AddInstruction(
+						il.SetRegister(
+							4,
+							NEC_SYSREG_FPSR,
+							il.Const(4, 1)
+						)
+					);
+					il.AddInstruction(il.Goto(end_tag));
+					il.MarkLabel(false_tag);
+					il.AddInstruction(
+						il.SetRegister(
+							4,
+							NEC_SYSREG_FPSR,
+							il.Const(4, 0)
+						)
+					);
+					il.MarkLabel(end_tag);
+					break;
+				case 4:
+				case 5:
+				case 12:
+				case 13:
+					condition = il.FloatCompareLessThan(
+						8,
+						this->get_reg(il,insn->fields[2].value,8),
+						this->get_reg(il,insn->fields[1].value,8)
+					);
+					il.AddInstruction(il.If(condition,true_tag,false_tag));
+					il.MarkLabel(true_tag);
+					il.AddInstruction(
+						il.SetRegister(
+							4,
+							NEC_SYSREG_FPSR,
+							il.Const(4, 1)
+						)
+					);
+					il.AddInstruction(il.Goto(end_tag));
+					il.MarkLabel(false_tag);
+					il.AddInstruction(
+						il.SetRegister(
+							4,
+							NEC_SYSREG_FPSR,
+							il.Const(4, 0)
+						)
+					);
+					il.MarkLabel(end_tag);
+					break;
+				case 6:
+				case 7:
+				case 14:
+				case 15:
+					condition = il.FloatCompareLessEqual(
+						8,
+						this->get_reg(il,insn->fields[2].value,8),
+						this->get_reg(il,insn->fields[1].value,8)
+					);
+					il.AddInstruction(il.If(condition,true_tag,false_tag));
+					il.MarkLabel(true_tag);
+					il.AddInstruction(
+						il.SetRegister(
+							4,
+							NEC_SYSREG_FPSR,
+							il.Const(4, 1)
+						)
+					);
+					il.AddInstruction(il.Goto(end_tag));
+					il.MarkLabel(false_tag);
+					il.AddInstruction(
+						il.SetRegister(
+							4,
+							NEC_SYSREG_FPSR,
+							il.Const(4, 0)
+						)
+					);
+					il.MarkLabel(end_tag);
+					break;
+				default:
+					il.AddInstruction(il.Unimplemented());
+					break;
+				}
+			}
+			break;
 			case N850_CMPI:
 			{
 				il.AddInstruction(
