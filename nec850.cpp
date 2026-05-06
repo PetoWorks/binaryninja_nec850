@@ -2633,6 +2633,21 @@ virtual std::string GetIntrinsicName (uint32_t intrinsic) override {
 				);
 			}
 			break;
+			case N850_CVTFSD:
+			{
+				il.AddInstruction(
+					il.SetRegisterSplit(
+						8,
+						insn->fields[1].value + 1,
+						insn->fields[1].value,
+						il.FloatConvert(
+							8,
+							this->get_reg(il,insn->fields[0].value,4)
+						)
+					)
+				);
+			}
+			break;
 			case N850_CVTFSL:
 			{
 				il.AddInstruction(

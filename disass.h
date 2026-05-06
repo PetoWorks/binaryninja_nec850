@@ -56,6 +56,7 @@ enum insn_id {
     N850_CTRET,
     N850_CVTFHS,
     N850_CVTFLS,
+    N850_CVTFSD,
     N850_CVTFSL,
     N850_CVTFSH,
     N850_CVTFSUL,
