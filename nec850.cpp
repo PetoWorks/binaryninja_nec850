@@ -3768,6 +3768,22 @@ virtual std::string GetIntrinsicName (uint32_t intrinsic) override {
 				);
 			}
 			break;
+			case N850_MULFD:
+			{
+				il.AddInstruction(
+					il.SetRegisterSplit(
+						8,
+						insn->fields[2].value + 1,
+						insn->fields[2].value,
+						il.FloatMult(
+							8,
+							this->get_reg(il,insn->fields[1].value,8),
+							this->get_reg(il,insn->fields[0].value,8)
+						)
+					)
+				);
+			}
+			break;
 			case N850_NEGFS:
 			{
 				il.AddInstruction(

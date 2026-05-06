@@ -116,6 +116,7 @@ enum insn_id {
     N850_MAXFS,
     N850_MINFS,
     N850_MULFS,
+    N850_MULFD,
     N850_NEGFS,
     N850_RECIPFS,
     N850_ROUNDFSL,
