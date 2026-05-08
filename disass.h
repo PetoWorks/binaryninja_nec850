@@ -123,6 +123,7 @@ enum insn_id {
     N850_MULFS,
     N850_MULFD,
     N850_NEGFS,
+    N850_NEGFD,
     N850_RECIPFS,
     N850_ROUNDFSL,
     N850_ROUNDFSUL,

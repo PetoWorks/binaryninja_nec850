@@ -3969,6 +3969,21 @@ virtual std::string GetIntrinsicName (uint32_t intrinsic) override {
 				);
 			}
 			break;
+			case N850_NEGFD:
+			{
+				il.AddInstruction(
+					il.SetRegisterSplit(
+						8,
+						insn->fields[1].value + 1,
+						insn->fields[1].value,
+						il.FloatNeg(
+							8,
+							il.RegisterSplit(8, insn->fields[0].value + 1, insn->fields[0].value)
+						)
+					)
+				);
+			}
+			break;
 			case N850_RECIPFS:
 			{
 				il.AddInstruction(
